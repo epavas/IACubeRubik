@@ -7,11 +7,13 @@ import  random
 import  numpy   as np 
 import  os
 import  pygame
+from  simpleai.search  import SearchProblem, astar
 from    quat           import *
 from    geometry       import *
 from    pygame.locals  import *
 from    OpenGL.GL      import *
 from    OpenGL.GLU     import *
+
 
 
 value = 0
@@ -198,55 +200,55 @@ def SelectColor(num):
 def draw_stickers(matriz):
     glBegin(GL_QUADS)
     for v in range(len(Sticker11)):
-      value = matriz[0][0]
+      value = int(matriz[0][0])
       value = int(value/10)
       SelectColor(value)
       glVertex3fv(Sticker11[v])
       
     for v in range(len(Sticker12)):
-      value = matriz[0][1]
+      value = int(matriz[0][1])
       value = int(value/10)
       SelectColor(value)
       glVertex3fv(Sticker12[v])
       
     for v in range(len(Sticker13)):
-      value = matriz[0][2]
+      value = int(matriz[0][2])
       value = int(value/10)
       SelectColor(value)
       glVertex3fv(Sticker13[v])
       
     for v in range(len(Sticker21)):
-      value = matriz[1][0]
+      value = int(matriz[1][0])
       value = int(value/10)
       SelectColor(value)
       glVertex3fv(Sticker21[v])
       
     for v in range(len(Sticker22)):
-      value = matriz[1][1]
+      value = int(matriz[1][1])
       value = int(value/10)
       SelectColor(value)
       glVertex3fv(Sticker22[v])
       
     for v in range(len(Sticker23)):
-      value = matriz[1][2]
+      value = int(matriz[1][2])
       value = int(value/10)
       SelectColor(value)
       glVertex3fv(Sticker23[v])
       
     for v in range(len(Sticker31)):
-      value = matriz[2][0]
+      value = int(matriz[2][0])
       value = int(value/10)
       SelectColor(value)
       glVertex3fv(Sticker31[v])
       
     for v in range(len(Sticker32)):
-      value = matriz[2][1]
+      value = int(matriz[2][1])
       value = int(value/10)
       SelectColor(value)
       glVertex3fv(Sticker32[v])
       
     for v in range(len(Sticker33)):
-      value = matriz[2][2]
+      value = int(matriz[2][2])
       value = int(value/10)
       SelectColor(value)
       glVertex3fv(Sticker33[v])  
@@ -328,10 +330,123 @@ class Node(object):
         self.cube_pos = cube_pos
         self.value = value
         self.rubik = rubik
-        self.children = []
-        self.padre = padre
+        self.children = [] #Array de hijos
+        self.padre = padre #Rubik padre
+        
+    #*     
+    #Añade los hijos a la lista de hijos del padre Rubik=self
     def add_child(self, obj):
         self.children.append(obj)
+        
+class Problem(SearchProblem):
+    
+    
+    def actions(self, rubik):
+       # if len(state) < len(GOAL):
+        #    return list(' ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+        #else:
+       #     return []
+        
+        for i in range(0, 12):
+            rubik_Copy = copy.deepcopy(parent.rubik)
+            if (i == 0):
+                rubik_Copy.face_1(True)
+            elif (i == 1):
+                rubik_Copy.face_1(False)
+            elif (i == 2):
+                rubik_Copy.face_2(True)
+            elif (i == 3):
+                rubik_Copy.face_2(False)
+            elif (i == 4):
+                rubik_Copy.face_3(True)
+            elif (i == 5):
+                rubik_Copy.face_3(False)
+            elif (i == 6):
+                rubik_Copy.face_4(True)
+            elif (i == 7):
+                rubik_Copy.face_4(False)
+            elif (i == 8):
+                rubik_Copy.face_5(True)
+            elif (i == 9):
+                rubik_Copy.face_5(False)
+            elif (i == 10):
+                rubik_Copy.face_6(True)
+            elif (i == 11):
+                rubik_Copy.face_6(False)
+            # print("herustic: ",rubik_Copy.herustic())
+            list.append(rubik_Copy)
+
+    def result(self, state, action):
+        return state + action
+
+    def is_goal(self, state):
+        f=[]
+        f.append(state.face1)
+        f.append(state.face2)
+        f.append(state.face3)
+        f.append(state.face4)
+        f.append(state.face5)
+        f.append(state.face6)
+
+        ob=[]
+        ob.append(np.array(['11', '12', '13', '14', '15', '16', '17', '18', '19']).reshape((3, 3))) #Blanco
+        ob.append(np.array(['21', '22', '23', '24', '25', '26', '27', '28', '29']).reshape((3, 3))) #Azul
+        ob.append(np.array(['31', '32', '33', '34', '35', '36', '37', '38', '39']).reshape((3, 3))) #Amarillo
+        ob.append(np.array(['41', '42', '43', '44', '45', '46', '47', '48', '49']).reshape((3, 3))) #Verde 
+        ob.append(np.array(['51', '52', '53', '54', '55', '56', '57', '58', '59']).reshape((3, 3))) #Naranja
+        ob.append(np.array(['61', '62', '63', '64', '65', '66', '67', '68', '69']).reshape((3, 3))) #Rojo
+        
+        e3=True
+        for i in range(6):
+            e1 = ob[i]
+            e2 = f[i]
+            for y in range(3):
+                for x in range(3):
+                    if(e1[x,y]==e2[x,y]):
+                        e3=e3  
+                    else:
+                        e3= False 
+                        return False                
+        return e3
+
+
+    
+    def heuristic(self, state):
+        '''regresa cuantas posiciones estan incorrectas 
+           dentro de todas las posibles,
+           Si todas estan correctas h=0
+        '''
+        # how far are we from the goal?
+        #wrong = sum([1 if state[i] != GOAL[i] else 0
+        #            for i in range(len(state))])
+        #missing = len(GOAL) - len(state)
+        #return wrong + missing
+        f=[]
+        f.append(state.face1)
+        f.append(state.face2)
+        f.append(state.face3)
+        f.append(state.face4)
+        f.append(state.face5)
+        f.append(state.face6)
+
+        ob=[]
+        ob.append(np.array(['11', '12', '13', '14', '15', '16', '17', '18', '19']).reshape((3, 3))) #Blanco
+        ob.append(np.array(['21', '22', '23', '24', '25', '26', '27', '28', '29']).reshape((3, 3))) #Azul
+        ob.append(np.array(['31', '32', '33', '34', '35', '36', '37', '38', '39']).reshape((3, 3))) #Amarillo
+        ob.append(np.array(['41', '42', '43', '44', '45', '46', '47', '48', '49']).reshape((3, 3))) #Verde 
+        ob.append(np.array(['51', '52', '53', '54', '55', '56', '57', '58', '59']).reshape((3, 3))) #Naranja
+        ob.append(np.array(['61', '62', '63', '64', '65', '66', '67', '68', '69']).reshape((3, 3))) #Rojo
+        
+        wrong=0
+        for i in range(6):
+            e1 = ob[i]
+            e2 = f[i]
+            for y in range(3):
+                for x in range(3):
+                    if(e1[x,y]!=e2[x,y]):
+                        wrong+=1  
+        return wrong
+        
 
 class Rubik(object):
     def __init__(self):
@@ -341,6 +456,9 @@ class Rubik(object):
         self.face4 = None
         self.face5 = None
         self.face6 = None
+        
+    
+        
     def face_1(self, flag):
         if flag:
             self.face1 = np.rot90(self.face1, 3)
@@ -553,19 +671,74 @@ class Rubik(object):
                 self.face_6(r2)
 
     def initial(self):
-        self.face1 = np.array([11, 12, 13, 14, 15, 16, 17, 18, 19]).reshape((3, 3))
-        self.face2 = np.array([21, 22, 23, 24, 25, 26, 27, 28, 29]).reshape((3, 3))
-        self.face3 = np.array([31, 32, 33, 34, 35, 36, 37, 38, 39]).reshape((3, 3))
-        self.face4 = np.array([41, 42, 43, 44, 45, 46, 47, 48, 49]).reshape((3, 3))
-        self.face5 = np.array([51, 52, 53, 54, 55, 56, 57, 58, 59]).reshape((3, 3))
-        self.face6 = np.array([61, 62, 63, 64, 65, 66, 67, 68, 69]).reshape((3, 3))
-    
+        self.face1 = np.array(['11', '12', '13', '14', '15', '16', '17', '18', '19']).reshape((3, 3)) #Blanco
+        self.face2 = np.array(['21', '22', '23', '24', '25', '26', '27', '28', '29']).reshape((3, 3)) #Azul
+        self.face3 = np.array(['31', '32', '33', '34', '35', '36', '37', '38', '39']).reshape((3, 3)) #Amarillo
+        self.face4 = np.array(['41', '42', '43', '44', '45', '46', '47', '48', '49']).reshape((3, 3)) #Verde 
+        self.face5 = np.array(['51', '52', '53', '54', '55', '56', '57', '58', '59']).reshape((3, 3)) #Naranja
+        self.face6 = np.array(['61', '62', '63', '64', '65', '66', '67', '68', '69']).reshape((3, 3)) #Rojo
+        
         #self.face1 = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1]).reshape(3, 3)
         #self.face2 = np.array([2, 2, 2, 2, 2, 2, 2, 2, 2]).reshape(3, 3)
         #self.face3 = np.array([3, 3, 3, 3, 3, 3, 3, 3, 3]).reshape(3, 3)
         #self.face4 = np.array([4, 4, 4, 4, 4, 4, 4, 4, 4]).reshape(3, 3)
         #self.face5 = np.array([5, 5, 5, 5, 5, 5, 5, 5, 5]).reshape(3, 3)
         #self.face6 = np.array([6, 6, 6, 6, 6, 6, 6, 6, 6]).reshape(3, 3)
+        
+        
+        
+        
+class Nodo(object):
+    def __init__(self):
+        self.rubik = None
+        self.exists = False
+        self.value = None
+        self.next_nodo = None
+        self.exist_nextnodo = False
+    
+    def _init_(self, rubik, value):
+        self.rubik = rubik
+        self.exists = True
+        self.value = value
+        self.next_nodo = None
+        self.exist_nextnodo = False
+        
+    def _init_(self, rubik, value, next_nodo):
+        self.rubik = rubik
+        self.exists = True
+        self.value = value
+        self.next_nodo = next_nodo
+        self.exist_nextnodo = True
+     
+    def insert(make_nodo, pTR):
+        if pTR.exists:
+            if pTR.value > make_nodo.value:
+                make_nodo.next_nodo = pTR
+                make_nodo.exist_nextnodo = True
+                pTR=make_nodo
+            else:
+                conti = True
+                anteriornodo = pTR
+                nodo = pTR
+                while conti:
+                    conti = nodo.exist_nextnodo
+                    if conti:
+                        anteriornodo = nodo
+                        nodo = nodo.next_nodo
+                        if nodo.value > make_node.value:
+                            make_node.next_nodo = nodo
+                            make_node.exist_nextnodo = True
+                            anteriornodo = make_node
+                            conti = False
+                        
+                    else:
+                        nodo.next_nodo = make_nodo
+                        nodo.exist_nextnodo = True
+                        
+        else:
+            pTR=make_nodo
+        
+    
         
 def addChild(parent, depth):  # , rubik):
     #rubik_Copy = copy.deepcopy(parent.rubik)
@@ -828,6 +1001,136 @@ def heuristics(var, rubik):
             input("Press enter to continue")
         except SyntaxError:
             pass
+        
+        
+        
+        
+##################     CONVERSIONES    ##############
+def matrix_to_string(matrix_):
+    '''Convert matrix to string.
+       Returns a string'''
+    return '\n'.join([' '.join(row) for row in matrix_])
+   
+def string_to_matrix(string_):
+    '''Convert puzzle string to list.
+       Returns a list'''
+    string_ = [row.split(' ') for row in string_.split('\n')]
+    return np.array(string_).reshape((3, 3)) 
+###Prueva1
+#e1 = np.array(['11', '12', '13', '14', '15', '16', '17', '18', '19']).reshape((3, 3))
+#e2=string_to_matrix(matrix_to_string(e1))
+#e3=True
+#for y in range(3):
+#    for x in range(3):
+#        if(e1[x,y]==e2[x,y]):
+#            e3=e3  
+#        else: e3=False        
+#if(e3):
+#    print('ok')
+###Prueva2
+#   e1='11 12 13\n14 15 16\n17 18 19'
+#    e2=matrix_to_string(string_to_matrix(e1))
+#    if(e1 == e2 ):
+#        print('ok')
+    
+
+###Calcula cuantos movimientos le falta para estar en el objetivo  
+def hPrimeraCruz(rubik):
+    f1 = rubik.face1
+    f2 = rubik.face2
+    f3 = rubik.face3
+    f4 = rubik.face4
+    f5 = rubik.face5
+    f6 = rubik.face6
+    
+    o1 = np.array(['11', '12', '13', '14', '15', '16', '17', '18', '19']).reshape((3, 3)) #Blanco
+    o2 = np.array(['21', '22', '23', '24', '25', '26', '27', '28', '29']).reshape((3, 3)) #Azul
+    o3 = np.array(['31', '32', '33', '34', '35', '36', '37', '38', '39']).reshape((3, 3)) #Amarillo
+    o4 = np.array(['41', '42', '43', '44', '45', '46', '47', '48', '49']).reshape((3, 3)) #Verde 
+    o5 = np.array(['51', '52', '53', '54', '55', '56', '57', '58', '59']).reshape((3, 3)) #Naranja
+    o6 = np.array(['61', '62', '63', '64', '65', '66', '67', '68', '69']).reshape((3, 3)) #Rojo
+    
+    
+    
+    h=0
+    if '12' == f1[0, 1] and '16' == f1[1, 2] and '18' == f1[2, 1] and '14' == f1[1, 0]:
+        h = 0#print("Estan en el lugar indicado")
+    else:
+      #####################Para Distancia 1  
+        if('12' == f1[1, 0] or '12' == f1[1, 2] or '12' == f3[0, 1] or '12' == f6[0, 1]):
+            h += 1    
+            #print("Distancia 1")
+        if('16' == f1[0, 1] or '16' == f1[2, 1] or '16' == f2[1, 2] or '16' == f5[1, 2]):
+            h += 1    
+            #print("Distancia 1")
+        if('18' == f1[1, 0] or '18' == f1[1, 2] or '18' == f3[2, 1] or '18' == f6[2, 1]):
+            h += 1    
+            #print("Distancia 1")
+        if('14' == f1[0, 1] or '14' == f1[2, 1] or '14' == f2[1, 0] or '14' == f5[1, 0]):
+            h += 1    
+            #print("Distancia 1")
+
+      #####################Para Distancia 2
+        if('12' == f1[2, 1] or '12' == f2[1, 0] or '12' == f2[1, 2] or '12' == f3[1, 0] or '12' == f3[1, 2] or '12' == f4[0, 1] or '12' == f5[1, 0] or '12' == f5[1, 2] or '12' == f6[1, 0] or '12' == f6[1, 2]):
+            h += 2    
+            #print("Distancia 2")
+        if('16' == f1[1, 0] or '16' == f2[0, 1] or '16' == f2[2, 1] or '16' == f3[0, 1] or '16' == f3[2, 1] or '16' == f4[1, 0] or '16' == f5[0, 1] or '16' == f5[2, 1] or '16' == f6[0, 1] or '16' == f6[2, 1]):
+            h += 2    
+            #print("Distancia 2")
+        if('18' == f1[0, 1] or '18' == f2[1, 0] or '18' == f2[1, 2] or '18' == f3[1, 0] or '18' == f3[1, 2] or '18' == f4[2, 1] or '18' == f5[1, 0] or '18' == f5[1, 2] or '18' == f6[1, 0] or '18' == f6[1, 2]):
+            h += 2    
+            #print("Distancia 2")
+        if('14' == f1[1, 2] or '14' == f2[0, 1] or '14' == f2[2, 1] or '14' == f3[0, 1] or '14' == f3[2, 1] or '14' == f4[1, 2] or '14' == f5[0, 1] or '14' == f5[2, 1] or '14' == f6[0, 1] or '14' == f6[2, 1]):
+            h += 2    
+            #print("Distancia 2")
+
+        #####################Para Distancia 3
+        if( '12' == f2[0, 1] or '12' == f2[2, 1] or '12' == f3[2, 1] or '12' == f4[1, 0] or '12' == f4[1, 2] or '12' == f5[0, 1] or '12' == f5[2, 1] or '12' == f6[2, 1]):
+            h += 3
+            #print("Distancia 3")
+        if( '16' == f2[1, 0] or '16' == f3[1, 0] or '16' == f3[1, 2] or '16' == f4[0, 1] or '16' == f4[2, 1] or '16' == f5[1, 0] or '16' == f6[1, 0] or '16' == f6[1, 2]):
+            h += 3
+            #print("Distancia 3")
+        if( '18' == f2[0, 1] or '18' == f2[2, 1] or '18' == f3[0, 1] or '18' == f4[1, 0] or '18' == f4[1, 2] or '18' == f5[0, 1] or '18' == f5[2, 1] or '18' == f6[0, 1]):
+            h += 3
+            #print("Distancia 3")
+        if( '14' == f2[1, 2] or '14' == f3[1, 0] or '14' == f3[1, 2] or '14' == f4[0, 1] or '14' == f4[2, 1] or '14' == f5[1, 2] or '14' == f6[1, 0] or '14' == f6[1, 2]):
+            h += 3
+            #print("Distancia 3")      
+
+      #####################Para Distancia 4
+        if('12' == f4[2, 1]):
+            h += 4   
+            #print("Distancia 4")
+        if('16' == f4[1, 2]):
+            h += 4   
+            #print("Distancia 4")
+        if('18' == f4[0, 1]): 
+            h += 4   
+            #print("Distancia 4")
+        if('14' == f4[1, 0]):
+            h += 4   
+            #print("Distancia 4")
+            
+        #print("No esta en el lugar indicado")
+        print("Distancia", h)
+    
+def aSearch(rubik):
+    pTR= Nodo(rubik)
+        
+def Asearch():
+    g = 0
+    h = 0
+    f = g + h
+    new_h = 0
+    if new_h < h:
+        print("este es el camino a tomar")
+        h= new_h
+    if h == 0:
+        print("Este es el estado objetivo")
+        
+#def cruz():
+    
 
 def main():
     pygame.init()
@@ -872,7 +1175,7 @@ def main():
             if event.type == pygame.KEYDOWN:
                 # Rotating about the x axis
                 os.system('cls')
-                random_cube(event, rubik,cube_moves, 10) # press R to solve the cube
+                random_cube(event, rubik,cube_moves, 10) # press R to move random the cube
                 rotate_face(event, rubik, cube_moves)
                 #instructions(var)
 
@@ -895,9 +1198,12 @@ def main():
                 if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                     inc_y = -pi / 500
                     
+                if event.key == pygame.K_m:
+                    hPrimeraCruz(rubik)
 
                 if event.key == pygame.K_u:
                     print('up')
+                    
     
                     # Reset to default view
                 if event.key == pygame.K_SPACE:

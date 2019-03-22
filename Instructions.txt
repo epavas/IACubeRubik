@@ -6,27 +6,27 @@ R	: para generar un cubo random
 		
 E   : para resolver el cubo 
 		
-T	: para mover la cara 1 hacia la derecha
+T	: para mover la cara 1 hacia la derecha blanco
 		
-F	: para mover la cara 2 hacia la derecha
+F	: para mover la cara 2 hacia la derecha azul
 		
-O	: para mover la cara 3 hacia la derecha
+O	: para mover la cara 3 hacia la derecha Amarillo
 		
-H	: para mover la cara 4 hacia la derecha
+H	: para mover la cara 4 hacia la derecha Verde
 		
-K	: para mover la cara 5 hacia la derecha
+K	: para mover la cara 5 hacia la derecha Naranja
 		
-U	: para mover la cara 6 hacia la derecha
+U	: para mover la cara 6 hacia la derecha Rojo 
 
 		
-Y	: para mover la cara 1 hacia la izquierda
+Y	: para mover la cara 1 hacia la izquierda blanco
 		
-G	: para mover la cara 2 hacia la izquierda
+G	: para mover la cara 2 hacia la izquierda azul
 		
-P	: para mover la cara 3 hacia la izquierda
+P	: para mover la cara 3 hacia la izquierda Amarillo
 		
-J	: para mover la cara 4 hacia la izquierda
+J	: para mover la cara 4 hacia la izquierda Verde
 		
-L	: para mover la cara 5 hacia la izquierda
+L	: para mover la cara 5 hacia la izquierda Naranja
 		
-I	: para mover la cara 6 hacia la izquierda
+I	: para mover la cara 6 hacia la izquierda Rojo 
