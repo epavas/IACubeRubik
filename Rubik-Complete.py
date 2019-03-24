@@ -428,6 +428,9 @@ class Problema(SearchProblem):
         return e3 #return True
     
     def value(self, state):
+        ''' el valor asociado al estado es la cantidad de fichas en la posicion correcta
+            es decir la cantidad de posiciones posibles - las que estan incorrectas
+        '''
         return 54 - self.pos_wrong(state)
 
 
