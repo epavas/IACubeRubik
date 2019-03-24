@@ -7,7 +7,7 @@ import  random
 import  numpy   as np 
 import  os
 import  pygame
-from  simpleai.search  import SearchProblem , astar, 
+from  simpleai.search  import (SearchProblem , astar, genetic)
 from    quat           import *
 from    geometry       import *
 from    pygame.locals  import *
@@ -338,7 +338,7 @@ class Node(object):
     def add_child(self, obj):
         self.children.append(obj)
         
-class Problem(SearchProblem):
+class Problema(SearchProblem):
     
     COSTS = {    
         1: 1,
@@ -398,7 +398,7 @@ class Problem(SearchProblem):
             rubik_Copy.face_6(True)
         elif (action== 11):
             rubik_Copy.face_6(False)
-        return rubic_Copy
+        return rubik_Copy
 
     def is_goal(self, state):
         f=[]
@@ -429,19 +429,12 @@ class Problem(SearchProblem):
                         e3= False 
                         return False                
         return e3 #return True
-
-
     
-    def heuristic(self, state):
-        '''regresa cuantas posiciones estan incorrectas 
-           dentro de todas las posibles,
-           Si todas estan correctas h=0
-        '''
-        # how far are we from the goal?
-        #wrong = sum([1 if state[i] != GOAL[i] else 0
-        #            for i in range(len(state))])
-        #missing = len(GOAL) - len(state)
-        #return wrong + missing
+    def value(self, state):
+        return 54 - self.pos_wrong(state)
+
+
+    def pos_wrong(self, state):
         f=[]
         f.append(state.face1)
         f.append(state.face2)
@@ -466,7 +459,42 @@ class Problem(SearchProblem):
                 for x in range(3):
                     if(e1[x,y]!=e2[x,y]):
                         wrong+=1  
+                        
         return wrong
+    
+    def heuristic(self, state):
+        '''regresa cuantas posiciones estan incorrectas 
+           dentro de todas las posibles,
+           Si todas estan correctas h=0
+        '''
+        # how far are we from the goal?
+        #wrong = sum([1 if state[i] != GOAL[i] else 0
+        #            for i in range(len(state))])
+        #missing = len(GOAL) - len(state)
+        #return wrong + missing
+        
+        return self.pos_wrong(state)
+    
+    def mutate(self, state):
+        mov =  random.randint
+        return self.result(state, mov)
+    
+    def crossover(self, state_1, state_2):
+        is_state_1 = random.choice([True,False])
+        if is_state_1:
+            return state_1
+        return state_2
+    
+    def generate_random_state(self):
+        initial_state = Rubik()
+        initial_state.initial()
+        num_mov =  random.randint(5,20)
+        rand_state =  initial_state
+        for _  in range(num_mov):
+            mov = random.randint(1,11)
+            rand_state  = self.result(rand_state, mov)
+        return rand_state
+        
     
 
         
@@ -1223,6 +1251,10 @@ def main():
                     
                 if event.key == pygame.K_m:
                     hPrimeraCruz(rubik)
+                    
+                if event.key == pygame.K_n:
+                    problema = Problema(initial_state = rubik)
+                    rubik = genetic(problema)
 
                 if event.key == pygame.K_u:
                     print('up')
