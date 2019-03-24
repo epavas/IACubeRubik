@@ -7,7 +7,7 @@ import  random
 import  numpy   as np 
 import  os
 import  pygame
-from  simpleai.search  import SearchProblem, astar
+from  simpleai.search  import SearchProblem , astar, 
 from    quat           import *
 from    geometry       import *
 from    pygame.locals  import *
@@ -340,44 +340,65 @@ class Node(object):
         
 class Problem(SearchProblem):
     
+    COSTS = {    
+        1: 1,
+        2: 1,
+        3: 1,
+        4: 1,
+        5: 1,
+        6: 1,
+        7: 1,
+        8: 1,
+        9: 1,
+        10: 1,
+        11: 1           
+    }
     
     def actions(self, rubik):
+                
        # if len(state) < len(GOAL):
         #    return list(' ABCDEFGHIJKLMNOPQRSTUVWXYZ')
         #else:
        #     return []
-        
-        for i in range(0, 12):
-            rubik_Copy = copy.deepcopy(parent.rubik)
-            if (i == 0):
-                rubik_Copy.face_1(True)
-            elif (i == 1):
-                rubik_Copy.face_1(False)
-            elif (i == 2):
-                rubik_Copy.face_2(True)
-            elif (i == 3):
-                rubik_Copy.face_2(False)
-            elif (i == 4):
-                rubik_Copy.face_3(True)
-            elif (i == 5):
-                rubik_Copy.face_3(False)
-            elif (i == 6):
-                rubik_Copy.face_4(True)
-            elif (i == 7):
-                rubik_Copy.face_4(False)
-            elif (i == 8):
-                rubik_Copy.face_5(True)
-            elif (i == 9):
-                rubik_Copy.face_5(False)
-            elif (i == 10):
-                rubik_Copy.face_6(True)
-            elif (i == 11):
-                rubik_Copy.face_6(False)
-            # print("herustic: ",rubik_Copy.herustic())
-            list.append(rubik_Copy)
+       ''' retorna la Lista de acciones que se pueden ejecutar
+       '''
+       list = []
+       for i in range(0, 12):
+            list.append(i)
+                
+       return list
 
     def result(self, state, action):
-        return state + action
+        '''
+        Aqui se le aplica la accion al estado 
+        '''
+        rubik_Copy = copy.deepcopy(state)
+        
+        if (action == 0):
+            rubik_Copy.face_1(True)
+        elif (action == 1):
+            rubik_Copy.face_1(False)
+        elif (action== 2):
+            rubik_Copy.face_2(True)
+        elif (action== 3):
+            rubik_Copy.face_2(False)
+        elif (action== 4):
+            rubik_Copy.face_3(True)
+        elif (action== 5):
+            rubik_Copy.face_3(False)
+        elif (action== 6):
+            rubik_Copy.face_4(True)
+        elif (action== 7):
+            rubik_Copy.face_4(False)
+        elif (action== 8):
+            rubik_Copy.face_5(True)
+        elif (action== 9):
+            rubik_Copy.face_5(False)
+        elif (action== 10):
+            rubik_Copy.face_6(True)
+        elif (action== 11):
+            rubik_Copy.face_6(False)
+        return rubic_Copy
 
     def is_goal(self, state):
         f=[]
@@ -407,7 +428,7 @@ class Problem(SearchProblem):
                     else:
                         e3= False 
                         return False                
-        return e3
+        return e3 #return True
 
 
     
@@ -446,8 +467,10 @@ class Problem(SearchProblem):
                     if(e1[x,y]!=e2[x,y]):
                         wrong+=1  
         return wrong
-        
+    
 
+        
+###################################################################################
 class Rubik(object):
     def __init__(self):
         self.face1 = None
