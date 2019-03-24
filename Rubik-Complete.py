@@ -355,11 +355,6 @@ class Problema(SearchProblem):
     }
     
     def actions(self, rubik):
-                
-       # if len(state) < len(GOAL):
-        #    return list(' ABCDEFGHIJKLMNOPQRSTUVWXYZ')
-        #else:
-       #     return []
        ''' retorna la Lista de acciones que se pueden ejecutar
        '''
        list = []
@@ -401,6 +396,8 @@ class Problema(SearchProblem):
         return rubik_Copy
 
     def is_goal(self, state):
+        ''' verifica si es el estado objetivo 
+        '''
         f=[]
         f.append(state.face1)
         f.append(state.face2)
@@ -435,6 +432,9 @@ class Problema(SearchProblem):
 
 
     def pos_wrong(self, state):
+        ''' Cuenta cuantas posiciones estan incorrectas dentro del cubo 
+        
+        '''
         f=[]
         f.append(state.face1)
         f.append(state.face2)
@@ -487,19 +487,30 @@ class Problema(SearchProblem):
         return self.result(state, mov) #ejecuta la accion
     
     def crossover(self, state_1, state_2):
+        ''' el cruce no se puede hacer de la forma tradicional
+            porque se generarian multiples conflictos
+            
+            se llego al acuerdo de seleccionar como hijo uno de los dos padres
+        '''
         is_state_1 = random.choice([True,False])
         if is_state_1:
             return state_1
         return state_2
     
     def generate_random_state(self):
+        ''' Genera un random "num_mov" que sera el numero de movimientos random
+            que se le realizaran al cubo 
+            
+            el movimiento sera girar la cara de manera aleatoria
+            mov = random.randi(1,11) 
+        '''
         initial_state = Rubik()
         initial_state.initial() #cubo armado
-        num_mov =  random.randint(5,20)
+        num_mov =  random.randint(20,50)
         rand_state =  initial_state
         for _  in range(num_mov):
-            mov = random.randint(1,11)
-            rand_state  = self.result(rand_state, mov) #se le ejecuta esta accion 
+            mov = random.randint(1,11) #se escoge el movimiento random
+            rand_state  = self.result(rand_state, mov) #ejecuta esta accion 
         return rand_state
         
     
