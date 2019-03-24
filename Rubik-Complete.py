@@ -451,6 +451,15 @@ class Problema(SearchProblem):
         ob.append(np.array(['51', '52', '53', '54', '55', '56', '57', '58', '59']).reshape((3, 3))) #Naranja
         ob.append(np.array(['61', '62', '63', '64', '65', '66', '67', '68', '69']).reshape((3, 3))) #Rojo
         
+         ob=[]
+        '''11', '12', '13', '14', '15', '16', '17', '18', '19' #Blanco
+        '21', '22', '23', '24', '25', '26', '27', '28', '29' #Azul
+        '31', '32', '33', '34', '35', '36', '37', '38', '39' #Amarillo
+        '41', '42', '43', '44', '45', '46', '47', '48', '49' #Verde 
+        '51', '52', '53', '54', '55', '56', '57', '58', '59' #Naranja
+        '61', '62', '63', '64', '65', '66', '67', '68', '69'''#Rojo
+        
+        
         wrong=0
         for i in range(6):
             e1 = ob[i]
@@ -467,17 +476,15 @@ class Problema(SearchProblem):
            dentro de todas las posibles,
            Si todas estan correctas h=0
         '''
-        # how far are we from the goal?
-        #wrong = sum([1 if state[i] != GOAL[i] else 0
-        #            for i in range(len(state))])
-        #missing = len(GOAL) - len(state)
-        #return wrong + missing
-        
+      
         return self.pos_wrong(state)
     
     def mutate(self, state):
+        ''' la mutacion le agrega un movimiento random
+            al cubo
+        '''
         mov =  random.randint
-        return self.result(state, mov)
+        return self.result(state, mov) #ejecuta la accion
     
     def crossover(self, state_1, state_2):
         is_state_1 = random.choice([True,False])
@@ -487,12 +494,12 @@ class Problema(SearchProblem):
     
     def generate_random_state(self):
         initial_state = Rubik()
-        initial_state.initial()
+        initial_state.initial() #cubo armado
         num_mov =  random.randint(5,20)
         rand_state =  initial_state
         for _  in range(num_mov):
             mov = random.randint(1,11)
-            rand_state  = self.result(rand_state, mov)
+            rand_state  = self.result(rand_state, mov) #se le ejecuta esta accion 
         return rand_state
         
     
