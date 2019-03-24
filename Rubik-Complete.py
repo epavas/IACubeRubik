@@ -338,21 +338,58 @@ class Node(object):
     def add_child(self, obj):
         self.children.append(obj)
         
+        
+GOAL = '''11 12 13 14 15 16 17 18 19
+21 22 23 24 25 26 27 28 29
+31 32 33 34 35 36 37 38 39
+41 42 43 44 45 46 47 48 49
+51 52 53 54 55 56 57 58 59
+61 62 63 64 65 66 67 68 69'''
+
+COSTS = {    
+    1: 1,
+    2: 1,
+    3: 1,
+    4: 1,
+    5: 1,
+    6: 1,
+    7: 1,
+    8: 1,
+    9: 1,
+    10: 1,
+    11: 1           
+}    
+
+
+
+def string_to_rubik(string_):
+    
+    ''' toma un stado es decir un string y crea un objeto rubik
+    '''
+    list_ = [row.split(' ') for row in string_.split('\n')]
+    rubik = Rubik()
+    rubik.face1 = np.array(list_[0]).reshape((3,3))
+    rubik.face2 = np.array(list_[1]).reshape((3,3))
+    rubik.face3 = np.array(list_[2]).reshape((3,3))
+    rubik.face4 = np.array(list_[3]).reshape((3,3))
+    rubik.face5 = np.array(list_[4]).reshape((3,3))
+    rubik.face6 = np.array(list_[5]).reshape((3,3))
+    return rubik
+
+def rubik_to_string(rubik):
+    ''' toma un objeto rubik lo convierte en un strin que sera el state
+    '''
+    string_ = ' '.join([' '.join(row) for row in rubik.face1])
+    string_ += '\n' + ' '.join([' '.join(row) for row in rubik.face2])
+    string_ += '\n' + ' '.join([' '.join(row) for row in rubik.face3])
+    string_ += '\n' + ' '.join([' '.join(row) for row in rubik.face4])
+    string_ += '\n' + ' '.join([' '.join(row) for row in rubik.face5])
+    string_ += '\n' + ' '.join([' '.join(row) for row in rubik.face6])
+    
+    return string_
+
 class Problema(SearchProblem):
     
-    COSTS = {    
-        1: 1,
-        2: 1,
-        3: 1,
-        4: 1,
-        5: 1,
-        6: 1,
-        7: 1,
-        8: 1,
-        9: 1,
-        10: 1,
-        11: 1           
-    }
     
     def actions(self, rubik):
        ''' retorna la Lista de acciones que se pueden ejecutar
@@ -366,8 +403,12 @@ class Problema(SearchProblem):
     def result(self, state, action):
         '''
         Aqui se le aplica la accion al estado 
+        toma el estado(un string) lo convierte a rubik
+        le ejecuta la accion
+        rubik lo convierte a string
         '''
-        rubik_Copy = copy.deepcopy(state)
+        rubik = string_to_rubik(state)
+        rubik_Copy = copy.deepcopy(rubik)
         
         if (action == 0):
             rubik_Copy.face_1(True)
@@ -393,39 +434,14 @@ class Problema(SearchProblem):
             rubik_Copy.face_6(True)
         elif (action== 11):
             rubik_Copy.face_6(False)
-        return rubik_Copy
+        return rubik_to_string(rubik_Copy)
 
     def is_goal(self, state):
         ''' verifica si es el estado objetivo 
         '''
-        f=[]
-        f.append(state.face1)
-        f.append(state.face2)
-        f.append(state.face3)
-        f.append(state.face4)
-        f.append(state.face5)
-        f.append(state.face6)
-
-        ob=[]
-        ob.append(np.array(['11', '12', '13', '14', '15', '16', '17', '18', '19']).reshape((3, 3))) #Blanco
-        ob.append(np.array(['21', '22', '23', '24', '25', '26', '27', '28', '29']).reshape((3, 3))) #Azul
-        ob.append(np.array(['31', '32', '33', '34', '35', '36', '37', '38', '39']).reshape((3, 3))) #Amarillo
-        ob.append(np.array(['41', '42', '43', '44', '45', '46', '47', '48', '49']).reshape((3, 3))) #Verde 
-        ob.append(np.array(['51', '52', '53', '54', '55', '56', '57', '58', '59']).reshape((3, 3))) #Naranja
-        ob.append(np.array(['61', '62', '63', '64', '65', '66', '67', '68', '69']).reshape((3, 3))) #Rojo
-        
-        e3=True
-        for i in range(6):
-            e1 = ob[i]
-            e2 = f[i]
-            for y in range(3):
-                for x in range(3):
-                    if(e1[x,y]==e2[x,y]):
-                        e3=e3  
-                    else:
-                        e3= False 
-                        return False                
-        return e3 #return True
+        if(state == GOAL):
+            return True
+        return False 
     
     def value(self, state):
         ''' el valor asociado al estado es la cantidad de fichas en la posicion correcta
@@ -438,39 +454,8 @@ class Problema(SearchProblem):
         ''' Cuenta cuantas posiciones estan incorrectas dentro del cubo 
         
         '''
-        f=[]
-        f.append(state.face1)
-        f.append(state.face2)
-        f.append(state.face3)
-        f.append(state.face4)
-        f.append(state.face5)
-        f.append(state.face6)
-
-        ob=[]
-        ob.append(np.array(['11', '12', '13', '14', '15', '16', '17', '18', '19']).reshape((3, 3))) #Blanco
-        ob.append(np.array(['21', '22', '23', '24', '25', '26', '27', '28', '29']).reshape((3, 3))) #Azul
-        ob.append(np.array(['31', '32', '33', '34', '35', '36', '37', '38', '39']).reshape((3, 3))) #Amarillo
-        ob.append(np.array(['41', '42', '43', '44', '45', '46', '47', '48', '49']).reshape((3, 3))) #Verde 
-        ob.append(np.array(['51', '52', '53', '54', '55', '56', '57', '58', '59']).reshape((3, 3))) #Naranja
-        ob.append(np.array(['61', '62', '63', '64', '65', '66', '67', '68', '69']).reshape((3, 3))) #Rojo
-        
-         ob=[]
-        '''11', '12', '13', '14', '15', '16', '17', '18', '19' #Blanco
-        '21', '22', '23', '24', '25', '26', '27', '28', '29' #Azul
-        '31', '32', '33', '34', '35', '36', '37', '38', '39' #Amarillo
-        '41', '42', '43', '44', '45', '46', '47', '48', '49' #Verde 
-        '51', '52', '53', '54', '55', '56', '57', '58', '59' #Naranja
-        '61', '62', '63', '64', '65', '66', '67', '68', '69'''#Rojo
-        
-        
-        wrong=0
-        for i in range(6):
-            e1 = ob[i]
-            e2 = f[i]
-            for y in range(3):
-                for x in range(3):
-                    if(e1[x,y]!=e2[x,y]):
-                        wrong+=1  
+        wrong = sum([1 if state[i] != GOAL[i] else 0
+                    for i in range(len(state))])
                         
         return wrong
     
@@ -495,6 +480,7 @@ class Problema(SearchProblem):
             
             se llego al acuerdo de seleccionar como hijo uno de los dos padres
         '''
+        
         is_state_1 = random.choice([True,False])
         if is_state_1:
             return state_1
@@ -507,8 +493,8 @@ class Problema(SearchProblem):
             el movimiento sera girar la cara de manera aleatoria
             mov = random.randi(1,11) 
         '''
-        initial_state = Rubik()
-        initial_state.initial() #cubo armado
+        
+        initial_state = GOAL
         num_mov =  random.randint(20,50)
         rand_state =  initial_state
         for _  in range(num_mov):
@@ -1272,10 +1258,23 @@ def main():
                     
                 if event.key == pygame.K_m:
                     hPrimeraCruz(rubik)
-                    
+ 
+########===>                   
                 if event.key == pygame.K_n:
-                    problema = Problema(initial_state = rubik)
-                    rubik = genetic(problema)
+                    
+                    final_state = genetic(Problema(rubik_to_string(rubik)))
+                    print(final_state)
+                    
+                    for nnss in final_state.path():
+                        print(nnss)
+                    
+                    for action, state in final_state.path():
+                        print('Move number', action)
+                        print(state)
+                        rubik =  string_to_rubik(state)
+                        time.sleep(1)
+                    
+                    print('Genetic algoritm')
 
                 if event.key == pygame.K_u:
                     print('up')
