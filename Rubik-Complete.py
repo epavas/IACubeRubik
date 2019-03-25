@@ -451,8 +451,16 @@ class Problema(SearchProblem):
             es decir la cantidad de posiciones posibles - las que estan incorrectas
         '''
         pos_wrong_ = self.pos_wrong(state)
-        value_ = (54/6) - (pos_wrong_/6)#self.pos_wrong(state)
+        value_ = (9) - (pos_wrong_/6)#self.pos_wrong(state)
         print(":::VALUE:: : "+str(value_)+" :::pos_wrong: "+str(pos_wrong_))
+        #rubik = string_to_rubik(state)
+        #hcr = 0
+        #he = 0
+        #for i in range(1,7):    
+         #   hcr += hPrimeraCruz(rubik, i)
+          #  he += hEsquinas(rubik, i)
+        #value_ = hcr+he
+        #print(":::VALUE:: : "+str(value_)+" :::hcr: "+str(hcr)+" :::he: "+str(he))
         return value_ #54 - self.pos_wrong(state)
 
 
@@ -476,6 +484,14 @@ class Problema(SearchProblem):
         '''
         h= self.pos_wrong(state)
         print("::HEURISTICA: : "+ str(h))
+        
+        for i in range(1,7):
+            
+            hcr += hPrimeraCruz(rubik, i)
+            he += hEsquinas(rubik, i)
+        h = hcr+he
+        print(":::HEURISTICA:: : "+str(h)+" :::hcr: "+str(hcr)+" :::he: "+str(he))
+
         return h #self.pos_wrong(state)
     
     def mutate(self, state):
@@ -1110,85 +1126,218 @@ def string_to_matrix(string_):
     
 
 ###Calcula cuantos movimientos le falta para estar en el objetivo  
-def hPrimeraCruz(rubik):
-    f1 = rubik.face1
-    f2 = rubik.face2
-    f3 = rubik.face3
-    f4 = rubik.face4
-    f5 = rubik.face5
-    f6 = rubik.face6
     
-    o1 = np.array(['11', '12', '13', '14', '15', '16', '17', '18', '19']).reshape((3, 3)) #Blanco
-    o2 = np.array(['21', '22', '23', '24', '25', '26', '27', '28', '29']).reshape((3, 3)) #Azul
-    o3 = np.array(['31', '32', '33', '34', '35', '36', '37', '38', '39']).reshape((3, 3)) #Amarillo
-    o4 = np.array(['41', '42', '43', '44', '45', '46', '47', '48', '49']).reshape((3, 3)) #Verde 
-    o5 = np.array(['51', '52', '53', '54', '55', '56', '57', '58', '59']).reshape((3, 3)) #Naranja
-    o6 = np.array(['61', '62', '63', '64', '65', '66', '67', '68', '69']).reshape((3, 3)) #Rojo
+def hEsquinas(rubik, cara):
+    
+    if cara == 1:
+        f1 = rubik.face1
+        f2 = rubik.face2
+        f3 = rubik.face3
+        f4 = np.rot90(rubik.face4,2)
+        f5 = rubik.face5
+        f6 = rubik.face6
+    elif cara == 2:
+        f1 = rubik.face2
+        f2 = rubik.face4
+        f3 = np.rot90(rubik.face3)
+        f4 = np.rot90(rubik.face5,2)
+        f5 = rubik.face1
+        f6 = np.rot90(rubik.face6, 3)
+    elif cara == 3:
+        f1 = rubik.face3
+        f2 = np.rot90(rubik.face2,3)
+        f3 = np.rot90(rubik.face4,2)
+        f4 = rubik.face6
+        f5 = np.rot90(rubik.face5)
+        f6 = rubik.face1
+    elif cara == 4:
+        f1 = rubik.face4
+        f2 = rubik.face2
+        f3 = np.rot90(rubik.face6,2)
+        f4 = np.rot90(rubik.face1,2)
+        f5 = rubik.face5
+        f6 = np.rot90(rubik.face3,2)
+    elif cara == 5:
+        f1 = rubik.face5
+        f2 = rubik.face1
+        f3 = np.rot90(rubik.face3,3)
+        f4 = np.rot90(rubik.face2,2)
+        f5 = rubik.face4
+        f6 = np.rot90(rubik.face6)
+    elif cara == 6:
+        f1 = rubik.face6
+        f2 = np.rot90(rubik.face2)
+        f3 = rubik.face1
+        f4 = rubik.face3
+        f5 = np.rot90(rubik.face5,3)
+        f6 = np.rot90(rubik.face4,2)
+    
+    e1 = 11 #   e1 cr1 e2  
+    e2 = 13 #  cr4 -#- cr2
+    e3 = 17 #   e4 cr3 e3
+    e4 = 19
+   
+    for _ in range(cara-1):
+        e1+=10 
+        e2+=10 
+        e3+=10 
+        e4+=10
+        
+    he = 0
+    if str(e1)==f1[0,0] and str(e2)==f1[0,2] and str(e3)==f1[2,0] and f4[2,2]:
+        he = 0 
+        #print("Todas las esquinas de la cara " +str(cara) +"  estan en el lugar indicado "+str(he))
+    else:
+        if str(e1)==f1[0,2] or str(e1)==f1[2,0] or str(e1)==f2[0,0] or str(e1)==f3[0,0] or str(e1)==f5[0,0] or str(e1)==f6[0,0]:
+            he+=1
+        elif str(e1)==f1[2,2] or str(e1)==f2[2,0] or str(e1)==f2[0,2] or str(e1)==f3[2,0] or str(e1)==f3[0,2] or str(e1)==f4[0,0] or str(e1)==f4[2,2] or str(e1)==f5[2,0] or str(e1)==f5[0,2] or str(e1)==f6[2,0] or str(e1)==f6[0,2]:
+            he+=2
+        elif str(e1)==f2[2,2] or str(e1)==f3[2,2] or str(e1)==f4[2,0] or str(e1)==f4[0,2] or str(e1)==f5[2,2] or str(e1)==f6[2,2]:
+            he+=3
+            
+        if str(e2)==f1[0,0] or str(e2)==f1[2,2] or str(e2)==f2[0,2] or str(e2)==f3[0,2] or str(e2)==f5[0,2] or str(e2)==f6[0,2]:
+            he+=1
+        elif str(e2)==f1[2,0] or str(e2)==f2[0,0] or str(e2)==f2[2,2] or str(e2)==f3[0,0] or str(e2)==f3[2,2] or str(e2)==f4[2,0] or str(e2)==f4[0,2] or str(e2)==f5[0,0] or str(e2)==f5[2,2] or str(e2)==f6[0,0] or str(e2)==f6[2,2]:
+            he+=2
+        elif str(e2)==f2[2,0] or str(e2)==f3[2,0] or str(e2)==f4[0,0] or str(e2)==f4[2,2] or str(e2)==f5[2,0] or str(e2)==f6[2,0]:
+            he+=3
+            
+        if str(e3)==f1[0,0] or str(e3)==f1[2,2] or str(e3)==f2[2,0] or str(e3)==f3[2,0] or str(e3)==f5[2,0] or str(e3)==f6[2,0]:
+            he+=1
+        elif str(e3)==f1[0,2] or str(e3)==f2[0,0] or str(e3)==f2[2,2] or str(e3)==f3[0,0] or str(e3)==f3[2,2] or str(e3)==f4[0,2] or str(e3)==f4[2,0] or str(e3)==f5[0,0] or str(e3)==f5[2,2] or str(e3)==f6[0,0] or str(e3)==f6[2,2]:
+            he+=2
+        elif str(e3)==f2[0,2] or str(e3)==f3[0,2] or str(e3)==f4[0,0] or str(e3)==f4[2,2] or str(e3)==f5[0,2] or str(e3)==f6[0,2]:
+            he+=3
+            
+        if str(e4)==f1[2,0] or str(e4)==f1[0,2] or str(e4)==f2[2,2] or str(e4)==f3[2,2] or str(e4)==f5[2,2] or str(e4)==f6[2,2]:
+            he+=1
+        elif str(e4)==f1[0,0] or str(e4)==f2[2,0] or str(e4)==f2[0,2] or str(e4)==f3[2,0] or str(e4)==f3[0,2] or str(e4)==f4[0,0] or str(e4)==f4[2,2] or str(e4)==f5[2,0] or str(e4)==f5[0,2] or str(e4)==f6[2,0] or str(e4)==f6[0,2]:
+            he+=2
+        elif str(e4)==f2[0,0] or str(e4)==f3[0,0] or str(e4)==f4[2,0] or str(e4)==f4[0,2] or str(e4)==f5[0,0] or str(e4)==f6[0,0]:
+            he+=3
+            
+    return he
+            
+            
+            
+def hPrimeraCruz(rubik, cara):
+    if cara == 1:
+        f1 = rubik.face1
+        f2 = rubik.face2
+        f3 = rubik.face3
+        f4 = np.rot90(rubik.face4,2)
+        f5 = rubik.face5
+        f6 = rubik.face6
+    elif cara == 2:
+        f1 = rubik.face2
+        f2 = rubik.face4
+        f3 = np.rot90(rubik.face3)
+        f4 = np.rot90(rubik.face5,2)
+        f5 = rubik.face1
+        f6 = np.rot90(rubik.face6, 3)
+    elif cara == 3:
+        f1 = rubik.face3
+        f2 = np.rot90(rubik.face2,3)
+        f3 = np.rot90(rubik.face4,2)
+        f4 = rubik.face6
+        f5 = np.rot90(rubik.face5)
+        f6 = rubik.face1
+    elif cara == 4:
+        f1 = rubik.face4
+        f2 = rubik.face2
+        f3 = np.rot90(rubik.face6,2)
+        f4 = np.rot90(rubik.face1,2)
+        f5 = rubik.face5
+        f6 = np.rot90(rubik.face3,2)
+    elif cara == 5:
+        f1 = rubik.face5
+        f2 = rubik.face1
+        f3 = np.rot90(rubik.face3,3)
+        f4 = np.rot90(rubik.face2,2)
+        f5 = rubik.face4
+        f6 = np.rot90(rubik.face6)
+    elif cara == 6:
+        f1 = rubik.face6
+        f2 = np.rot90(rubik.face2)
+        f3 = rubik.face1
+        f4 = rubik.face3
+        f5 = np.rot90(rubik.face5,3)
+        f6 = np.rot90(rubik.face4,2)
     
     
+    cr1 = 12 #   e1 cr1 e2   
+    cr2 = 16 #  cr4 -#- cr2
+    cr3 = 18 #   e4 cr3 e3
+    cr4 = 14 #
+    for _ in range(cara-1):
+        cr1+=10 
+        cr2+=10 
+        cr3+=10 
+        cr4+=10
+       
     
     h=0
-    if '12' == f1[0, 1] and '16' == f1[1, 2] and '18' == f1[2, 1] and '14' == f1[1, 0]:
+    if str(cr1) == f1[0, 1] and str(cr2) == f1[1, 2] and str(cr3) == f1[2, 1] and str(cr4) == f1[1, 0]:
         h = 0#print("Estan en el lugar indicado")
     else:
       #####################Para Distancia 1  
-        if('12' == f1[1, 0] or '12' == f1[1, 2] or '12' == f3[0, 1] or '12' == f6[0, 1]):
+        if(str(cr1) == f1[1, 0] or str(cr1) == f1[1, 2] or str(cr1) == f3[0, 1] or str(cr1) == f6[0, 1]):
             h += 1    
             #print("Distancia 1")
-        if('16' == f1[0, 1] or '16' == f1[2, 1] or '16' == f2[1, 2] or '16' == f5[1, 2]):
+        if(str(cr2) == f1[0, 1] or str(cr2) == f1[2, 1] or str(cr2) == f2[1, 2] or str(cr2) == f5[1, 2]):
             h += 1    
             #print("Distancia 1")
-        if('18' == f1[1, 0] or '18' == f1[1, 2] or '18' == f3[2, 1] or '18' == f6[2, 1]):
+        if(str(cr3) == f1[1, 0] or str(cr3) == f1[1, 2] or str(cr3) == f3[2, 1] or str(cr3) == f6[2, 1]):
             h += 1    
             #print("Distancia 1")
-        if('14' == f1[0, 1] or '14' == f1[2, 1] or '14' == f2[1, 0] or '14' == f5[1, 0]):
+        if(str(cr4) == f1[0, 1] or str(cr4) == f1[2, 1] or str(cr4) == f2[1, 0] or str(cr4) == f5[1, 0]):
             h += 1    
             #print("Distancia 1")
 
       #####################Para Distancia 2
-        if('12' == f1[2, 1] or '12' == f2[1, 0] or '12' == f2[1, 2] or '12' == f3[1, 0] or '12' == f3[1, 2] or '12' == f4[0, 1] or '12' == f5[1, 0] or '12' == f5[1, 2] or '12' == f6[1, 0] or '12' == f6[1, 2]):
+        if(str(cr1) == f1[2, 1] or str(cr1) == f2[1, 0] or str(cr1) == f2[1, 2] or str(cr1) == f3[1, 0] or str(cr1) == f3[1, 2] or str(cr1) == f4[0, 1] or str(cr1) == f5[1, 0] or str(cr1) == f5[1, 2] or str(cr1) == f6[1, 0] or str(cr1) == f6[1, 2]):
             h += 2    
             #print("Distancia 2")
-        if('16' == f1[1, 0] or '16' == f2[0, 1] or '16' == f2[2, 1] or '16' == f3[0, 1] or '16' == f3[2, 1] or '16' == f4[1, 0] or '16' == f5[0, 1] or '16' == f5[2, 1] or '16' == f6[0, 1] or '16' == f6[2, 1]):
+        if(str(cr2) == f1[1, 0] or str(cr2) == f2[0, 1] or str(cr2) == f2[2, 1] or str(cr2) == f3[0, 1] or str(cr2) == f3[2, 1] or str(cr2) == f4[1, 0] or str(cr2) == f5[0, 1] or str(cr2) == f5[2, 1] or str(cr2) == f6[0, 1] or str(cr2) == f6[2, 1]):
             h += 2    
             #print("Distancia 2")
-        if('18' == f1[0, 1] or '18' == f2[1, 0] or '18' == f2[1, 2] or '18' == f3[1, 0] or '18' == f3[1, 2] or '18' == f4[2, 1] or '18' == f5[1, 0] or '18' == f5[1, 2] or '18' == f6[1, 0] or '18' == f6[1, 2]):
+        if(str(cr3) == f1[0, 1] or str(cr3) == f2[1, 0] or str(cr3) == f2[1, 2] or str(cr3) == f3[1, 0] or str(cr3) == f3[1, 2] or str(cr3) == f4[2, 1] or str(cr3) == f5[1, 0] or str(cr3) == f5[1, 2] or str(cr3) == f6[1, 0] or str(cr3) == f6[1, 2]):
             h += 2    
             #print("Distancia 2")
-        if('14' == f1[1, 2] or '14' == f2[0, 1] or '14' == f2[2, 1] or '14' == f3[0, 1] or '14' == f3[2, 1] or '14' == f4[1, 2] or '14' == f5[0, 1] or '14' == f5[2, 1] or '14' == f6[0, 1] or '14' == f6[2, 1]):
+        if(str(cr4) == f1[1, 2] or str(cr4) == f2[0, 1] or str(cr4) == f2[2, 1] or str(cr4) == f3[0, 1] or str(cr4) == f3[2, 1] or str(cr4) == f4[1, 2] or str(cr4) == f5[0, 1] or str(cr4) == f5[2, 1] or str(cr4) == f6[0, 1] or str(cr4) == f6[2, 1]):
             h += 2    
             #print("Distancia 2")
 
         #####################Para Distancia 3
-        if( '12' == f2[0, 1] or '12' == f2[2, 1] or '12' == f3[2, 1] or '12' == f4[1, 0] or '12' == f4[1, 2] or '12' == f5[0, 1] or '12' == f5[2, 1] or '12' == f6[2, 1]):
+        if( str(cr1) == f2[0, 1] or str(cr1) == f2[2, 1] or str(cr1) == f3[2, 1] or str(cr1) == f4[1, 0] or str(cr1) == f4[1, 2] or str(cr1) == f5[0, 1] or str(cr1) == f5[2, 1] or str(cr1) == f6[2, 1]):
             h += 3
             #print("Distancia 3")
-        if( '16' == f2[1, 0] or '16' == f3[1, 0] or '16' == f3[1, 2] or '16' == f4[0, 1] or '16' == f4[2, 1] or '16' == f5[1, 0] or '16' == f6[1, 0] or '16' == f6[1, 2]):
+        if( str(cr2) == f2[1, 0] or str(cr2) == f3[1, 0] or str(cr2) == f3[1, 2] or str(cr2) == f4[0, 1] or str(cr2) == f4[2, 1] or str(cr2) == f5[1, 0] or str(cr2) == f6[1, 0] or str(cr2) == f6[1, 2]):
             h += 3
             #print("Distancia 3")
-        if( '18' == f2[0, 1] or '18' == f2[2, 1] or '18' == f3[0, 1] or '18' == f4[1, 0] or '18' == f4[1, 2] or '18' == f5[0, 1] or '18' == f5[2, 1] or '18' == f6[0, 1]):
+        if( str(cr3) == f2[0, 1] or str(cr3) == f2[2, 1] or str(cr3) == f3[0, 1] or str(cr3) == f4[1, 0] or str(cr3) == f4[1, 2] or str(cr3) == f5[0, 1] or str(cr3) == f5[2, 1] or str(cr3) == f6[0, 1]):
             h += 3
             #print("Distancia 3")
-        if( '14' == f2[1, 2] or '14' == f3[1, 0] or '14' == f3[1, 2] or '14' == f4[0, 1] or '14' == f4[2, 1] or '14' == f5[1, 2] or '14' == f6[1, 0] or '14' == f6[1, 2]):
+        if( str(cr4) == f2[1, 2] or str(cr4) == f3[1, 0] or str(cr4) == f3[1, 2] or str(cr4) == f4[0, 1] or str(cr4) == f4[2, 1] or str(cr4) == f5[1, 2] or str(cr4) == f6[1, 0] or str(cr4) == f6[1, 2]):
             h += 3
             #print("Distancia 3")      
 
       #####################Para Distancia 4
-        if('12' == f4[2, 1]):
+        if(str(cr1) == f4[2, 1]):
             h += 4   
             #print("Distancia 4")
-        if('16' == f4[1, 2]):
+        if(str(cr2) == f4[1, 2]):
             h += 4   
             #print("Distancia 4")
-        if('18' == f4[0, 1]): 
+        if(str(cr3) == f4[0, 1]): 
             h += 4   
             #print("Distancia 4")
-        if('14' == f4[1, 0]):
+        if(str(cr4) == f4[1, 0]):
             h += 4   
             #print("Distancia 4")
             
-        #print("No esta en el lugar indicado")
-        print("Distancia", h)
+
+    return h
     
 def aSearch(rubik):
     pTR= Nodo(rubik)
@@ -1274,8 +1423,14 @@ def main():
                     inc_y = -pi / 500
                     
                 if event.key == pygame.K_m:
-                    hPrimeraCruz(rubik)
- 
+                    print("::::::MOVIMINIENTOS FALTANTES :::::")
+                    for i in range(1,7):    
+                        hcr=hPrimeraCruz(rubik, i)
+                        he = hEsquinas(rubik, i)
+                        print("Cara "+str(i) +", hcr :: "+str(hcr)+", he  :: "+str(he))
+                     
+
+
 ########===>                   
                 if event.key == pygame.K_n:
                     
