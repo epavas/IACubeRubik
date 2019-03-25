@@ -5,6 +5,8 @@ instrucctiones
 R	: para generar un cubo random
 		
 E   : para resolver el cubo 
+
+N   : Pa utilizar el algortimo geneico 
 		
 T	: para mover la cara 1 hacia la derecha blanco
 		

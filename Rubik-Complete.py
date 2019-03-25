@@ -394,6 +394,7 @@ class Problema(SearchProblem):
     def actions(self, rubik):
        ''' retorna la Lista de acciones que se pueden ejecutar
        '''
+       print("::: ACTIONS :::")
        list = []
        for i in range(0, 12):
             list.append(i)
@@ -407,6 +408,7 @@ class Problema(SearchProblem):
         le ejecuta la accion
         rubik lo convierte a string
         '''
+        print("::: RESULT :: action: " + str(action))
         rubik = string_to_rubik(state)
         rubik_Copy = copy.deepcopy(rubik)
         
@@ -439,6 +441,7 @@ class Problema(SearchProblem):
     def is_goal(self, state):
         ''' verifica si es el estado objetivo 
         '''
+        print(":::IS_GOAL :: : ")
         if(state == GOAL):
             return True
         return False 
@@ -447,16 +450,23 @@ class Problema(SearchProblem):
         ''' el valor asociado al estado es la cantidad de fichas en la posicion correcta
             es decir la cantidad de posiciones posibles - las que estan incorrectas
         '''
-        return 54 - self.pos_wrong(state)
+        pos_wrong_ = self.pos_wrong(state)
+        value_ = (54/6) - (pos_wrong_/6)#self.pos_wrong(state)
+        print(":::VALUE:: : "+str(value_)+" :::pos_wrong: "+str(pos_wrong_))
+        return value_ #54 - self.pos_wrong(state)
 
 
     def pos_wrong(self, state):
         ''' Cuenta cuantas posiciones estan incorrectas dentro del cubo 
         
         '''
-        wrong = sum([1 if state[i] != GOAL[i] else 0
-                    for i in range(len(state))])
-                        
+        stateM = [row.split(' ') for row in state.split('\n')]
+        goalM = [row.split(' ') for row in GOAL.split('\n')]
+        wrong = 0                        
+        for i in range(len(stateM)):
+            for j in range(len(stateM[i])):
+                if goalM[i][j] != stateM[i][j]:
+                    wrong +=1
         return wrong
     
     def heuristic(self, state):
@@ -464,14 +474,16 @@ class Problema(SearchProblem):
            dentro de todas las posibles,
            Si todas estan correctas h=0
         '''
-      
-        return self.pos_wrong(state)
+        h= self.pos_wrong(state)
+        print("::HEURISTICA: : "+ str(h))
+        return h #self.pos_wrong(state)
     
     def mutate(self, state):
         ''' la mutacion le agrega un movimiento random
             al cubo
         '''
-        mov =  random.randint
+        mov =  random.randint(1,11)
+        print("Realizando mutacion:::: se escogio el mov "+ str(mov))
         return self.result(state, mov) #ejecuta la accion
     
     def crossover(self, state_1, state_2):
@@ -480,10 +492,12 @@ class Problema(SearchProblem):
             
             se llego al acuerdo de seleccionar como hijo uno de los dos padres
         '''
-        
+        print("Realizando un cruce")
         is_state_1 = random.choice([True,False])
         if is_state_1:
+            print("   Se escogio el estado1")
             return state_1
+        print("    Se escogio el estado2")
         return state_2
     
     def generate_random_state(self):
@@ -495,11 +509,14 @@ class Problema(SearchProblem):
         '''
         
         initial_state = GOAL
-        num_mov =  random.randint(20,50)
+        num_mov =  random.randint(5,15)
+        print("Generando un nuevo estado random::"+str( num_mov ))
         rand_state =  initial_state
-        for _  in range(num_mov):
+        for i_  in range(num_mov):
             mov = random.randint(1,11) #se escoge el movimiento random
             rand_state  = self.result(rand_state, mov) #ejecuta esta accion 
+            h= self.pos_wrong(rand_state)
+            print("new state :: "+str(i_)+ str(h))
         return rand_state
         
     
